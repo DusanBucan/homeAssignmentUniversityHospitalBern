@@ -1,0 +1,14 @@
+{
+  "error": {
+    "title": "Error",
+    "unknown": "Unknown Error",
+    "unexpected": "An unexpected error occurred.",
+    "stackTrace": "The stack trace is:"
+  },
+
+  "homePage": {},
+
+  "listingPage": {},
+
+  "previewPage": {}
+}
