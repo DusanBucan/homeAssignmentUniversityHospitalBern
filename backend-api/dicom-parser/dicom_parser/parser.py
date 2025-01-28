@@ -1,5 +1,7 @@
 import argparse
+import json
 
+# import os
 import numpy as np
 from pydicom import dcmread
 from pydicom.multival import MultiValue
@@ -108,13 +110,19 @@ def convert_dicom(filepath):
 
 def main():
     parser = argparse.ArgumentParser(description="Convert DICOM file to JSON format.")
-    parser.add_argument("filepath", help="Path to the DICOM file")
-
+    parser.add_argument(
+        "filepath",
+        help="Path to the DICOM file",
+        nargs="?",  # This makes the argument optional 
+        default=r"C:\Users\Dell 5591\Documents\freelance\homeAssigmentUniversityHospitalBern\dicom_examples\Images\A\MR-IMG-301-1-130.dcm",
+    )
     args = parser.parse_args()
 
-    print(args)
-    # dicom_data = convert_dicom(args.filepath)
-    # print(dicom_data)
+    # print(args.filepath)
+    dicom_data = convert_dicom(args.filepath)
+    dicom_data_json = json.dumps(dicom_data)
+    print(dicom_data_json)
+    # return dicom_data_json
 
 
 if __name__ == "__main__":

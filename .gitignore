@@ -1,6 +1,13 @@
 # dicom example images
 dicom_examples/*
 
+# dicom parser virtual environment
+dicom-parser-venv/*
+
+## local storage for files
+backend-api/local_storage/dicom_images/*
+local_storage/dicom_images/*
+
 # compiled output
 backend-api/dist
 backend-api/node_modules

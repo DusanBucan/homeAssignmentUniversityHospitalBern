@@ -9,6 +9,17 @@ export class SequelizeFileRepository implements FileRepository {
     @InjectModel(File)
     private fileModel: typeof File,
   ) {}
+
+  async getAll(limit: number, offset: number): Promise<[File[], number]> {
+    const { rows, count } = await this.fileModel.findAndCountAll({
+      offset: offset,
+      limit: limit,
+    });
+    return [rows, count];
+  }
+  getOneById(fileId: string): Promise<File | undefined> {
+    return this.fileModel.findOne({ where: { id: fileId } });
+  }
   save(filePath: string): Promise<File> {
     return this.fileModel.create({ filePath });
   }

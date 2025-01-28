@@ -14,11 +14,17 @@ export class File extends Model {
   @Column
   id: string;
 
-  @Column({ type: STRING })
+  @Column({ type: STRING, field: 'file_path' })
   filePath: string;
 
-  @Column({ type: DATE })
-  createdDate: Date;
+  @Column({ type: DATE, field: 'file_created_date' })
+  fileCreatedDate: Date;
+
+  @Column({ type: DATE, field: 'created_at' })
+  createdAt: Date;
+
+  @Column({ type: DATE, field: 'updated_at' })
+  updatedAt: Date;
 
   //TODO: add relation with other models
 }

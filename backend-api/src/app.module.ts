@@ -9,6 +9,7 @@ import { Patient } from './patient/patient.model';
 import { File } from './file/file.model';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { GraphQLModule } from '@nestjs/graphql';
+import { ObjectStorageModule } from './object-storage/object-storage.module';
 
 @Module({
   imports: [
@@ -16,21 +17,24 @@ import { GraphQLModule } from '@nestjs/graphql';
       dialect: 'mysql',
       host: 'localhost',
       port: 3306,
-      username: 'root',
-      password: 'root',
-      database: 'test',
+      username: 'backend-api-user',
+      password: 'password',
+      database: 'backend-api-db',
       models: [Patient, File],
-    }),
-    GraphQLModule.forRoot<ApolloDriverConfig>({
-      driver: ApolloDriver,
-      playground: true,
-      include: [FileModule],
+      synchronize: true,
     }),
     FileModule,
     PatientModule,
     StudyModule,
     SeriesModule,
     ModalityModule,
+    GraphQLModule.forRoot<ApolloDriverConfig>({
+      autoSchemaFile: true,
+      driver: ApolloDriver,
+      playground: true,
+      include: [FileModule],
+    }),
+    ObjectStorageModule,
   ],
 })
 export class AppModule {}

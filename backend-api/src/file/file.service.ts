@@ -1,94 +1,107 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { NotFoundException } from '@nestjs/common';
-import { createWriteStream, mkdirSync } from 'fs';
-import path, { join } from 'path';
-import { finished } from 'stream/promises';
-import { DICOMFileInput } from './graphql/types/file.input';
-import { FILE_REPOSITORY, FILE_STORAGE_FOLDER } from './file.constants';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import * as path from 'path';
+import { FILE_REPOSITORY } from './file.constants';
 import { FileRepository } from './file.repository.interface';
 import { spawn } from 'child_process';
+import * as Upload from 'graphql-upload/Upload.js';
+import { ObjectStorageService } from '../object-storage/object-storage.interface';
+import { OBJECT_STORAGE_SERVICE } from '../object-storage/object-storage.constants';
+import { File } from './file.model';
 
+interface A {}
 
 @Injectable()
 export class FileService {
   constructor(
     @Inject(FILE_REPOSITORY) private fileRepository: FileRepository,
+    @Inject(OBJECT_STORAGE_SERVICE)
+    private objectStorageService: ObjectStorageService,
   ) {}
 
-  async save(dicomFileInput: DICOMFileInput): Promise<any> {
-    const filePaths = await Promise.all(
-      dicomFileInput.files.map(async (image, index) => {
-        const imageFile: any = await image;
-        const fileName = `${Date.now()}_${index}_${imageFile.filename}`;
-        const uploadDir = join(FILE_STORAGE_FOLDER, `dicom_images`);
-        const filePath = await this.storeFileOnDisc(
-          imageFile.createReadStream,
-          uploadDir,
-          fileName,
-        );
-        return filePath;
-      }),
-    );
+  async getAll(limit: number, offset: number): Promise<[File[], number]> {
+    return this.fileRepository.getAll(limit, offset);
+  }
 
-    for (let filePath of filePaths) {
-      const fileContent = await this.processFile(filePath, "")
-      // on error it should remove file from file_storage
-      this.fileRepository.save(filePath);
+  async get(id: string) {
+    const fileEntry = await this.fileRepository.getOneById(id);
+    if (!fileEntry) {
+      throw new NotFoundException(
+        `[FileService] - file with id ${id} not found`,
+      );
+    }
+    const key = fileEntry.filePath;
+    const dicomFile = await this.objectStorageService.get(key);
+    return dicomFile;
+  }
+
+  async save(dicomFileInput: Upload): Promise<File> {
+    let filePath: string | undefined;
+    let fileModel: File | undefined;
+
+    await dicomFileInput;
+
+    try {
+      filePath = await this.objectStorageService.create(dicomFileInput);
+      const fileContent = await this.processFile(filePath);
+      fileModel = await this.fileRepository.save(filePath);
+    } catch (e) {
+      if (filePath) {
+        await this.objectStorageService.delete(filePath);
+      }
+      fileModel = undefined;
+    } finally {
+      return fileModel;
     }
   }
 
-  private processFile(filePath: string, pythonDicomParserScript: string): Promise<JSON> {
+  private processFile(filePath: string): Promise<JSON> {
     return new Promise((resolve, reject) => {
-        const pythonScriptPath = path.join(__dirname, pythonDicomParserScript);
+      const dicomParserRootFolder = path.join(process.cwd(), './dicom-parser');
+      const venvPath = path.join(
+        dicomParserRootFolder,
+        '../../dicom-parser-venv',
+      );
 
-        // Spawn the Python process
-        const pythonProcess = spawn('python3', [pythonScriptPath, filePath]);
+      const activateEnv =
+        process.platform === 'win32'
+          ? `"${venvPath}\\Scripts\\activate.bat"` // Windows
+          : `source ${venvPath}/bin/activate`; // Linux/macOS
 
-        let output = '';
-        let errorOutput = '';
+      // Command to run the Poetry script
+      const poetryCommand = 'poetry run parser';
+      const fullCommand = `${activateEnv} && ${poetryCommand} "${filePath}"`;
 
-        // Collect the output from the Python script
-        pythonProcess.stdout.on('data', (data) => {
-            output += data.toString();
-        });
-
-        // Collect any error output from the Python script
-        pythonProcess.stderr.on('data', (data) => {
-            errorOutput += data.toString();
-        });
-
-        // Handle the Python process exit
-        pythonProcess.on('close', (code) => {
-            if (code === 0) {
-                const retVal = JSON.parse(output)
-                resolve(retVal);
-            } else {
-                // If there's an error, reject the promise with the error output
-                reject(new Error(errorOutput || `Python script failed with code ${code}`));
-            }
-        });
-    });
-  }
-
-  private async storeFileOnDisc(
-    readStream: any,
-    uploadDir: string,
-    fileName: string,
-  ): Promise<string> {
-    const filePath = join(uploadDir, fileName);
-    console.log(`file path: ${filePath}`); //TODO: replace with logger
-    mkdirSync(uploadDir, { recursive: true });
-    const inStream = readStream();
-    const outStream = createWriteStream(filePath);
-    inStream.pipe(outStream);
-    await finished(outStream)
-      .then(() => {
-        console.log('file uploaded');
-      })
-      .catch((err) => {
-        console.log(err.message);
-        throw new NotFoundException(err.message);
+      // Spawn the Python process
+      const pythonProcess = spawn(fullCommand, {
+        shell: true,
+        cwd: dicomParserRootFolder,
+        env: process.env,
       });
-    return filePath;
+
+      let output = '';
+      let errorOutput = '';
+
+      // Collect the output from the Python script
+      pythonProcess.stdout.on('data', (data) => {
+        output += data.toString();
+      });
+
+      // Collect any error output from the Python script
+      pythonProcess.stderr.on('data', (data) => {
+        errorOutput += data.toString();
+      });
+
+      // Handle the Python process exit
+      pythonProcess.on('close', (code) => {
+        if (code === 0) {
+          const retVal = JSON.parse(output);
+          resolve(retVal);
+        } else {
+          reject(
+            new Error(errorOutput || `Python script failed with code ${code}`),
+          );
+        }
+      });
+    });
   }
 }
