@@ -1,0 +1,26 @@
+[tool.poetry]
+name = "dicom-parser"
+version = "0.1.0"
+description = "simple script for parsing dicom files"
+authors = ["dusanbzr@gmail.com"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+numpy = "^1.24.0"
+Pillow = "^10.0.0"
+pydicom = "^2.4.0"
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.9.3"
+
+[tool.ruff]
+line-length = 88
+extend-select = ["I"]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+parser = "dicom_parser.parser:main"

@@ -1,3 +1,6 @@
+# dicom example images
+dicom_examples/*
+
 # compiled output
 backend-api/dist
 backend-api/node_modules
@@ -54,3 +57,43 @@ pids
 
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+
+
+# Ignore Python artifacts
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+*.egg-info/
+*.egg
+*.whl
+
+# Ignore virtual environments
+.env/
+.venv/
+
+# Poetry-related files
+poetry.lock
+
+# Test-related files
+htmlcov/
+.tox/
+.cache/
+.pytest_cache/
+*.cover
+coverage.xml
+nosetests.xml
+*.log
+
+# Ignore backend-api Python artifacts
+backend-api/dicom-parser/.mypy_cache/
+backend-api/dicom-parser/.pytest_cache/
+backend-api/dicom-parser/__pycache__/
+backend-api/dicom-parser/build/
+backend-api/dicom-parser/dist/
+backend-api/dicom-parser/*.egg-info
+
+# Ignore temporary files
+backend-api/dicom-parser/.DS_Store
+backend-api/dicom-parser/.coverage
+backend-api/dicom-parser/.env
