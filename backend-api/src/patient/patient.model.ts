@@ -5,13 +5,14 @@ import {
   Table,
   PrimaryKey,
   AutoIncrement,
+  DataType,
 } from 'sequelize-typescript';
 
 @Table({ tableName: 'patients' })
 export class Patient extends Model {
   @PrimaryKey
   @AutoIncrement
-  @Column
+  @Column({ type: DataType.INTEGER})
   id: string;
 
   @Column({ type: STRING })

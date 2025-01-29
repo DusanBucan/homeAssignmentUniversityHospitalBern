@@ -110,11 +110,15 @@ def convert_dicom(filepath):
 
 def main():
     parser = argparse.ArgumentParser(description="Convert DICOM file to JSON format.")
+    # parser.add_argument(
+    #     "filepath",
+    #     help="Path to the DICOM file",
+    #     nargs="?",  # This makes the argument optional 
+    #     default=r"C:\Users\Dell 5591\Documents\freelance\homeAssigmentUniversityHospitalBern\dicom_examples\Images\A\MR-IMG-301-1-130.dcm",
+    # )
     parser.add_argument(
         "filepath",
-        help="Path to the DICOM file",
-        nargs="?",  # This makes the argument optional 
-        default=r"C:\Users\Dell 5591\Documents\freelance\homeAssigmentUniversityHospitalBern\dicom_examples\Images\A\MR-IMG-301-1-130.dcm",
+        help="Path to the DICOM file"
     )
     args = parser.parse_args()
 

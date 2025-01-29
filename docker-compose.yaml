@@ -22,6 +22,28 @@ services:
     networks:
       - app-network
 
+  backend_api:
+    build:
+      context: ./backend-api
+    container_name: backend-api-container
+    ports:
+      - "3000:3000"
+    networks:
+      - app-network
+    depends_on:
+      - mysql
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: frontend-container
+    ports:
+      - "80:80"
+    depends_on:
+      - backend_api
+    networks:
+      - app-network
+
 networks:
   app-network:
     driver: bridge

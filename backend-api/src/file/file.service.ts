@@ -7,6 +7,7 @@ import * as Upload from 'graphql-upload/Upload.js';
 import { ObjectStorageService } from '../object-storage/object-storage.interface';
 import { OBJECT_STORAGE_SERVICE } from '../object-storage/object-storage.constants';
 import { File } from './file.model';
+import { ConfigService } from '@nestjs/config';
 
 interface A {}
 
@@ -16,6 +17,7 @@ export class FileService {
     @Inject(FILE_REPOSITORY) private fileRepository: FileRepository,
     @Inject(OBJECT_STORAGE_SERVICE)
     private objectStorageService: ObjectStorageService,
+    private configService: ConfigService,
   ) {}
 
   async getAll(limit: number, offset: number): Promise<[File[], number]> {
@@ -45,6 +47,7 @@ export class FileService {
       const fileContent = await this.processFile(filePath);
       fileModel = await this.fileRepository.save(filePath);
     } catch (e) {
+      console.error(e)
       if (filePath) {
         await this.objectStorageService.delete(filePath);
       }
@@ -58,8 +61,8 @@ export class FileService {
     return new Promise((resolve, reject) => {
       const dicomParserRootFolder = path.join(process.cwd(), './dicom-parser');
       const venvPath = path.join(
-        dicomParserRootFolder,
-        '../../dicom-parser-venv',
+        this.configService.get('PYTHON_VENV_PATH'),
+        '',
       );
 
       const activateEnv =
@@ -73,7 +76,7 @@ export class FileService {
 
       // Spawn the Python process
       const pythonProcess = spawn(fullCommand, {
-        shell: true,
+        shell: process.platform === 'win32' ? true : '/bin/bash',
         cwd: dicomParserRootFolder,
         env: process.env,
       });
@@ -97,6 +100,9 @@ export class FileService {
           const retVal = JSON.parse(output);
           resolve(retVal);
         } else {
+          console.error(
+            errorOutput || `Python script failed with code ${code}`,
+          );
           reject(
             new Error(errorOutput || `Python script failed with code ${code}`),
           );

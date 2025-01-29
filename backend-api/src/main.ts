@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import * as graphqlUploadExpress from 'graphql-upload/graphqlUploadExpress.js';
+import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -10,11 +11,18 @@ async function bootstrap() {
   );
 
   app.enableCors({
-    origin: 'http://localhost:5173', // Replace with your frontend's URL
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE', // Allowed HTTP methods
+    origin: [
+      'http://localhost:5173',
+      'http://localhost:80',
+      'http://frontend:80',
+      'http://localhost:80/',
+      'http://localhost',
+    ],
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true, // Allow credentials (cookies, authorization headers)
   });
 
-  await app.listen(process.env.PORT ?? 3000);
+  const appPort = app.get(ConfigService).get('PORT');
+  await app.listen(appPort ?? 3000);
 }
 bootstrap();
