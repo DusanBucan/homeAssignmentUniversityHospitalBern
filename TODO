@@ -1,6 +1,6 @@
-- init frontend
-  - components
-  - pages
+today:
+  - infrastucture
 
-
-- work on DICOM viewer since image is not good compared to online DICOM viewers..
+tomorrow:
+  - listing page
+  - db schema update

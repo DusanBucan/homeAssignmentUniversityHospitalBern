@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { MutableRefObject, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   init as dicomImageLoaderInit,
@@ -18,45 +18,57 @@ interface DicomViewerProps {
 }
 
 export const DicomViewer = ({ fileId }: DicomViewerProps) => {
-  const elementRef = useRef<HTMLDivElement>(null);
-  const running = useRef(false);
-  const { dicomBlob, error } = useDicomViewer(fileId);
   const { t } = useTranslation();
 
+  const viewportId = 'CT';
+  let renderingEngine: RenderingEngine;
+  const renderingEngineId = 'myRenderingEngine';
+
+  const stackViewportRef = useRef<ReturnType<
+    typeof renderingEngine.getStackViewport
+  > | null>(null) as MutableRefObject<any>;
+  const elementRef = useRef<HTMLDivElement>(null);
+  const running = useRef(false);
+  const { getDICOMImageByFileId, error } = useDicomViewer();
+  const [dicomBlob, setDicomBlob] = useState<Blob | undefined>(undefined);
+
   useEffect(() => {
-    const setup = async (dicomBlob: Blob) => {
+    const setup = async () => {
       if (running.current) {
         return;
       }
       running.current = true;
       csRenderInit();
       dicomImageLoaderInit({ maxWebWorkers: 1 });
-
-      const renderingEngineId = 'myRenderingEngine';
-      const renderingEngine = new RenderingEngine(renderingEngineId);
-      const viewportId = 'CT';
-
+      renderingEngine = new RenderingEngine(renderingEngineId);
       const viewportInput = {
         viewportId,
         type: Enums.ViewportType.STACK,
         element: elementRef.current,
       };
-
       renderingEngine.enableElement(viewportInput as any);
-      const viewport = renderingEngine.getStackViewport(viewportId);
+      stackViewportRef.current = renderingEngine.getStackViewport(viewportId);
+      if (fileId) {
+        const fetchedDicomblob = await getDICOMImageByFileId(fileId);
+        setDicomBlob(fetchedDicomblob);
+      }
+    };
+    setup();
+  }, [elementRef, running]);
+
+  useEffect(() => {
+    const display = async (dicomBlob: Blob | undefined) => {
+      if (!dicomBlob || !stackViewportRef.current) return;
 
       const cornerstoneImageId = wadouri.fileManager.add(dicomBlob);
       await wadouri.loadImage(cornerstoneImageId).promise;
 
       const stack = convertMultiframeImageIds(metaData, [cornerstoneImageId]);
-      await viewport.setStack(stack);
-
-      viewport.render();
+      await stackViewportRef.current.setStack(stack);
+      stackViewportRef.current.render();
     };
-    if (dicomBlob) {
-      setup(dicomBlob);
-    }
-  }, [elementRef, running, dicomBlob]);
+    display(dicomBlob);
+  }, [dicomBlob, stackViewportRef]);
 
   useEffect(() => {
     if (error && elementRef.current) {

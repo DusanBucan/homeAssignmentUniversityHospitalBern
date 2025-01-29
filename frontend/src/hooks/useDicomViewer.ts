@@ -1,37 +1,40 @@
-import { useEffect, useState } from 'react';
-import { restInstance } from '../clients/backendApiClient';
+import { useCallback, useState } from 'react';
+import { backendApiInstanceREST } from '../clients/backendApiClient';
+import { useTranslation } from 'react-i18next';
+import { enqueueSnackbar } from 'notistack';
 
-export const useDicomViewer = (fileId: string | undefined) => {
+export const useDicomViewer = () => {
   const [loading, setLoading] = useState<boolean>(false);
-  const [dicomBlob, setDicomBlob] = useState<Blob | null>(null);
   const [error, setError] = useState<Error | null>(null);
+  const { t } = useTranslation();
 
-  const getDICOMImageByFileId = async (fileId: string) => {
-    try {
-      setLoading(true);
-      const rawDicomResponse = await restInstance.get(`/files/${fileId}`, {
-        responseType: 'arraybuffer',
-      });
+  const getDICOMImageByFileId = useCallback(
+    async (fileId: string) => {
+      try {
+        setLoading(true);
+        const rawDicomResponse = await backendApiInstanceREST.get(
+          `/files/${fileId}`,
+          {
+            responseType: 'arraybuffer',
+          }
+        );
 
-      const newBlob = new Blob([rawDicomResponse.data], {
-        type: 'application/dicom',
-      });
+        const newBlob = new Blob([rawDicomResponse.data], {
+          type: 'application/dicom',
+        });
 
-      setDicomBlob(newBlob);
-      setLoading(false);
-    } catch (e: any) {
-      setError(e);
-      setDicomBlob(null);
-    } finally {
-      setLoading(false);
-    }
-  };
+        return newBlob;
+      } catch (e: any) {
+        setError(e);
+        enqueueSnackbar(t('filePreviewPage.notFoundDicomFile'), {
+          variant: 'error',
+        });
+      } finally {
+        setLoading(false);
+      }
+    },
+    [t]
+  );
 
-  useEffect(() => {
-    if (fileId) {
-      getDICOMImageByFileId(fileId);
-    }
-  }, [fileId]);
-
-  return { dicomBlob, loading, error, getDICOMImageByFileId };
+  return { loading, error, getDICOMImageByFileId };
 };

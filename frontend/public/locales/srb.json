@@ -7,15 +7,29 @@
   },
 
   "appBar": {
-    "title": "traka aplikacije"
+    "title": "Aplikaciona traka"
   },
 
-  "homePage": {},
+  "fileUploadPage": {
+    "title": "Stranica za otpremanje fajlova",
+    "browseFiles": "Pregledaj fajlove",
+    "ddTOnlyActiveText": "Prevucite DICOM fajlove ovde...",
+    "ddPlusClickText": "Prevucite i ispustite DICOM fajlove ovde ili kliknite za izbor",
+    "allowedFormats": "Dozvoljeni format:",
+    "maxSize": "Maksimalna veličina:",
+    "errorTooLarge": "Veličina fajla prelazi 5MB.",
+    "errorInvalidType": "Dozvoljeni su samo .dcm fajlovi.",
+    "errorGeneral": "Nevažeći fajl.",
+    "clearFiles": "Obriši fajlove",
+    "confirmUpload": "Potvrdi otpremanje",
+    "uploadSuccess": "Fajl je uspešno otpremljen!",
+    "uploadFailed": "Otpremanje fajla nije uspelo!"
+  },
 
   "listingPage": {},
 
   "filePreviewPage": {
-    "title": "DICOM Pregledač",
-    "notFoundDicomFile": "DICOM fajl nije pronadjen"
+    "title": "DICOM Preglednik",
+    "notFoundDicomFile": "DICOM fajl nije pronađen"
   }
 }

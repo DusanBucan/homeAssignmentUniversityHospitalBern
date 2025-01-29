@@ -10,7 +10,21 @@
     "title": "app bar"
   },
 
-  "homePage": {},
+  "fileUploadPage": {
+    "title": "File upload page",
+    "browseFiles": "Browse Files",
+    "ddTOnlyActiveText": "Drop the DICOM files here...",
+    "ddPlusClickText": "Drag & drop DICOM files here or click to select",
+    "allowedFormats": "Allowed format:",
+    "maxSize": "Max size:",
+    "errorTooLarge": "File size exceeds 5MB.",
+    "errorInvalidType": "Only .dcm files are allowed.",
+    "errorGeneral": "Invalid file.",
+    "clearFiles": "Clear Files",
+    "confirmUpload": "Confirm Upload",
+    "uploadSuccess": "File uploaded successfully!",
+    "uploadFailed": "File upload failed!"
+  },
 
   "listingPage": {},
 
