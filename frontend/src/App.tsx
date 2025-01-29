@@ -1,4 +1,4 @@
-import LeftSideAppBar from './compoents/AppBar';
+import LeftSideAppBar from './components/AppBar';
 
 function App() {
   return <LeftSideAppBar />;

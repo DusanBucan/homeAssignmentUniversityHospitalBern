@@ -6,9 +6,16 @@
     "stackTrace": "The stack trace is:"
   },
 
+  "appBar": {
+    "title": "app bar"
+  },
+
   "homePage": {},
 
   "listingPage": {},
 
-  "previewPage": {}
+  "filePreviewPage": {
+    "title": "DICOM Viewer",
+    "notFoundDicomFile": "DICOM file was not found"
+  }
 }

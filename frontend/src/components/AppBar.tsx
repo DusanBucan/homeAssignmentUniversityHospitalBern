@@ -7,11 +7,12 @@ import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 import { Routes, Route } from 'react-router';
 import { FileListingPage } from '../pages/FileListingPage';
-import { ImagePreviewPage } from '../pages/ImagePreviewPage';
+import { FilePreviewPage } from '../pages/FilePreviewPage';
 import { FileUploadPage } from '../pages/FileUploadPage';
+import { useTranslation } from 'react-i18next';
 
 const LeftSideAppBar: React.FC = () => {
-  //   const { t } = useTranslation();
+  const { t } = useTranslation();
   return (
     <Box sx={{ display: 'flex', height: '100vh' }}>
       {/* Left-Side AppBar */}
@@ -41,7 +42,7 @@ const LeftSideAppBar: React.FC = () => {
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" component="div">
-            Left AppBar
+            {t('appBar.title')}
           </Typography>
         </Toolbar>
       </AppBar>
@@ -51,7 +52,7 @@ const LeftSideAppBar: React.FC = () => {
         <Routes>
           <Route path="/" element={<FileListingPage />} />
           <Route path="/file-upload" element={<FileUploadPage />} />
-          <Route path="/image-view/:imageId" element={<ImagePreviewPage />} />
+          <Route path="/file-preview/:fileId" element={<FilePreviewPage />} />
         </Routes>
       </Box>
     </Box>

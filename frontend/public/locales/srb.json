@@ -1,4 +1,21 @@
 {
-  "welcome": "Dobro dosli u aplikaciju",
-  "goodbye": "Dovidjenja"
+  "error": {
+    "title": "Greška",
+    "unknown": "Nepoznata greška",
+    "unexpected": "Došlo je do neočekivane greške.",
+    "stackTrace": "Stack trace je:"
+  },
+
+  "appBar": {
+    "title": "traka aplikacije"
+  },
+
+  "homePage": {},
+
+  "listingPage": {},
+
+  "filePreviewPage": {
+    "title": "DICOM Pregledač",
+    "notFoundDicomFile": "DICOM fajl nije pronadjen"
+  }
 }
