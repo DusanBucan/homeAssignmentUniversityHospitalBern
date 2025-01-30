@@ -1,12 +1,14 @@
 import { Typography } from '@mui/material';
+import { FileListingTable } from '../components/FileListingTable';
+import { useTranslation } from 'react-i18next';
 
 export const FileListingPage = () => {
+  const { t } = useTranslation();
+
   return (
     <>
-      <Typography variant="h4">Main Content Area</Typography>
-      <Typography variant="body1">
-        This is the primary content section of the app.
-      </Typography>
+      <Typography variant="h4">{t('fileListingPage.title')}</Typography>
+      <FileListingTable></FileListingTable>
     </>
   );
 };

@@ -11,14 +11,14 @@ export class FileResolver {
 
   @Query(() => FileList)
   async getAll(
-    @Args('limit', { nullable: true, type: () => Int }) limit: number = 10,
-    @Args('offset', { nullable: true, type: () => Int }) offset: number = 0,
+    @Args('page', { nullable: true, type: () => Int }) page: number = 10,
+    @Args('pageSize', { nullable: true, type: () => Int }) pageSize: number = 0,
   ) {
-    const [files, size] = await this.fileService.getAll(limit, offset);
+    const [files, count] = await this.fileService.getAll(pageSize, page);
     return {
-      offset,
-      limit,
-      size,
+      page,
+      pageSize,
+      count,
       files,
     };
   }

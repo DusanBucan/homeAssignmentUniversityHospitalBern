@@ -9,6 +9,7 @@ import {
   ListItem,
   Paper,
   Stack,
+  Skeleton,
 } from '@mui/material';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -68,15 +69,16 @@ export default function FileUpload() {
         sx={{
           border: '2px dashed #1976d2',
           p: 4,
-          cursor: 'pointer',
-          bgcolor: isDragActive ? '#f0f0f0' : 'transparent',
+          cursor: loading ? 'not-allowed' : 'pointer',
+          bgcolor: isDragActive && !loading ? '#f0f0f0' : 'transparent',
           borderRadius: 2,
+          opacity: loading ? 0.5 : 1,
         }}
       >
-        <input {...getInputProps()} />
+        <input {...getInputProps()} disabled={loading} />
         <CloudUploadIcon color="primary" sx={{ fontSize: 48 }} />
         <Typography variant="h6" mt={1}>
-          {isDragActive
+          {isDragActive && !loading
             ? t('fileUploadPage.ddTOnlyActiveText')
             : t('fileUploadPage.ddPlusClickText')}
         </Typography>
@@ -84,7 +86,12 @@ export default function FileUpload() {
           {t('fileUploadPage.allowedFormats')} .dcm |{' '}
           {t('fileUploadPage.maxSize')} 5MB
         </Typography>
-        <Button variant="contained" color="primary" sx={{ mt: 2 }}>
+        <Button
+          variant="contained"
+          color="primary"
+          sx={{ mt: 2 }}
+          disabled={loading}
+        >
           {t('fileUploadPage.browseFiles')}
         </Button>
       </Box>
@@ -101,32 +108,36 @@ export default function FileUpload() {
         </Typography>
       )}
 
-      {files.length > 0 && (
-        <Stack sx={{ mt: 2 }} spacing={2}>
-          <List>
-            {files.map((file) => (
-              <ListItem key={file.name}>{file.name}</ListItem>
-            ))}
-          </List>
-          <Stack direction="row" spacing={2} justifyContent="center">
-            <Button
-              variant="outlined"
-              color="secondary"
-              startIcon={<DeleteIcon />}
-              onClick={handleClearFiles}
-            >
-              {t('fileUploadPage.clearFiles')}
-            </Button>
-            <Button
-              variant="contained"
-              color="success"
-              startIcon={<CheckCircleIcon />}
-              onClick={handleConfirmUpload}
-            >
-              {t('fileUploadPage.confirmUpload')}
-            </Button>
+      {loading ? (
+        <Skeleton variant="rectangular" height={80} sx={{ mt: 2 }} />
+      ) : (
+        files.length > 0 && (
+          <Stack sx={{ mt: 2 }} spacing={2}>
+            <List>
+              {files.map((file) => (
+                <ListItem key={file.name}>{file.name}</ListItem>
+              ))}
+            </List>
+            <Stack direction="row" spacing={2} justifyContent="center">
+              <Button
+                variant="outlined"
+                color="secondary"
+                startIcon={<DeleteIcon />}
+                onClick={handleClearFiles}
+              >
+                {t('fileUploadPage.clearFiles')}
+              </Button>
+              <Button
+                variant="contained"
+                color="success"
+                startIcon={<CheckCircleIcon />}
+                onClick={handleConfirmUpload}
+              >
+                {t('fileUploadPage.confirmUpload')}
+              </Button>
+            </Stack>
           </Stack>
-        </Stack>
+        )
       )}
     </Paper>
   );

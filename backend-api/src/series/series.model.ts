@@ -8,18 +8,15 @@ import {
   DataType,
 } from 'sequelize-typescript';
 
-@Table({ tableName: 'patients' })
-export class Patient extends Model {
+@Table({ tableName: 'series' })
+export class Series extends Model {
   @PrimaryKey
   @AutoIncrement
   @Column({ type: DataType.INTEGER })
   id: number;
 
   @Column({ type: STRING })
-  name: string;
-
-  @Column({ type: STRING })
-  birthDate: string;
+  description: string;
 
   @Column({ type: DATE, field: 'created_at' })
   createdAt: Date;

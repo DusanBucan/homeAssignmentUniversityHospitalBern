@@ -21,7 +21,6 @@ async function bootstrap() {
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true, // Allow credentials (cookies, authorization headers)
   });
-
   const appPort = app.get(ConfigService).get('PORT');
   await app.listen(appPort ?? 3000);
 }

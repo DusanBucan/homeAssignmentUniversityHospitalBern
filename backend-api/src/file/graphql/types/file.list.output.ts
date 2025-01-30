@@ -1,17 +1,7 @@
 import { Field, ObjectType } from '@nestjs/graphql';
-import { GraphQLInt } from 'graphql';
-
-@ObjectType()
-export class ListResponse {
-  @Field(() => GraphQLInt)
-  offset: number;
-
-  @Field(() => GraphQLInt)
-  limit: number;
-
-  @Field(() => GraphQLInt)
-  size: number;
-}
+import { PatientOutput } from '../../../patient/graphql/types/patient.output';
+import { SeriesOutput } from '../../../series/graphql/types/series.output';
+import { ListResponse } from '../../../graphql/types/list.response';
 
 @ObjectType('file')
 export class FileOutput {
@@ -21,8 +11,11 @@ export class FileOutput {
   @Field(() => String)
   filePath: string;
 
-  @Field({ nullable: true })
-  fileCreatedDate: Date;
+  @Field(() => PatientOutput)
+  patient: PatientOutput;
+
+  @Field(() => SeriesOutput)
+  series: SeriesOutput;
 
   @Field()
   createdAt: Date;

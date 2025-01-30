@@ -1,9 +1,7 @@
 import { Module } from '@nestjs/common';
 import { FileModule } from './file/file.module';
 import { PatientModule } from './patient/patient.module';
-import { StudyModule } from './study/study.module';
 import { SeriesModule } from './series/series.module';
-import { ModalityModule } from './modality/modality.module';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { Patient } from './patient/patient.model';
 import { File } from './file/file.model';
@@ -11,6 +9,7 @@ import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ObjectStorageModule } from './object-storage/object-storage.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { Series } from './series/series.model';
 
 @Module({
   imports: [
@@ -27,20 +26,18 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
         username: configService.get('DB_USERNAME') || 'backend-api-user',
         password: configService.get('DB_PASSWORD') || 'password',
         database: configService.get('DB_DATABASE') || 'backend-api-db',
-        models: [Patient, File],
-        autoLoadModels: true,
-        synchronize: true,
+        models: [Patient, File, Series],
+        autoLoadModels: configService.get('DB_INIT') === 'true' ? true : false,
+        synchronize: configService.get('DB_INIT') === 'true' ? true : false,
         sync: {
-          force: true,
+          force: configService.get('DB_INIT') === 'true' ? true : false,
         },
       }),
       inject: [ConfigService],
     }),
     FileModule,
     PatientModule,
-    StudyModule,
     SeriesModule,
-    ModalityModule,
     GraphQLModule.forRoot<ApolloDriverConfig>({
       autoSchemaFile: true,
       driver: ApolloDriver,

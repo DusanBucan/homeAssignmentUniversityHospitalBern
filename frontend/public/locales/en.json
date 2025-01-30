@@ -7,7 +7,11 @@
   },
 
   "appBar": {
-    "title": "app bar"
+    "title": "App bar",
+    "toolbar": {
+      "fileList": "File listings",
+      "fileUpload": "DICOM upload"
+    }
   },
 
   "fileUploadPage": {
@@ -26,7 +30,17 @@
     "uploadFailed": "File upload failed!"
   },
 
-  "listingPage": {},
+  "fileListingPage": {
+    "title": "File listing page",
+    "listingTable": {
+      "patientNameColumn": "Patient Name",
+      "patientBirthDateColumn": "Patient Birth Date",
+      "seriesDescriptionColumn": "Series Description",
+      "downloadColumn": "Download",
+      "previewColumn": "Preview",
+      "fetchError": "File listing fetch failed"
+    }
+  },
 
   "filePreviewPage": {
     "title": "DICOM Viewer",

@@ -12,6 +12,7 @@ import {
 } from '@cornerstonejs/core';
 import { convertMultiframeImageIds } from '../utils/cornerstone.utils';
 import { useDicomViewer } from '../hooks/useDicomViewer';
+import Skeleton from '@mui/material/Skeleton';
 
 interface DicomViewerProps {
   fileId?: string;
@@ -29,17 +30,17 @@ export const DicomViewer = ({ fileId }: DicomViewerProps) => {
   > | null>(null) as MutableRefObject<any>;
   const elementRef = useRef<HTMLDivElement>(null);
   const running = useRef(false);
-  const { getDICOMImageByFileId, error } = useDicomViewer();
+  const { getDICOMImageByFileId, error, loading } = useDicomViewer();
   const [dicomBlob, setDicomBlob] = useState<Blob | undefined>(undefined);
 
   useEffect(() => {
     const setup = async () => {
-      if (running.current) {
-        return;
-      }
+      if (running.current) return;
+
       running.current = true;
       csRenderInit();
       dicomImageLoaderInit({ maxWebWorkers: 1 });
+
       renderingEngine = new RenderingEngine(renderingEngineId);
       const viewportInput = {
         viewportId,
@@ -48,13 +49,14 @@ export const DicomViewer = ({ fileId }: DicomViewerProps) => {
       };
       renderingEngine.enableElement(viewportInput as any);
       stackViewportRef.current = renderingEngine.getStackViewport(viewportId);
+
       if (fileId) {
-        const fetchedDicomblob = await getDICOMImageByFileId(fileId);
-        setDicomBlob(fetchedDicomblob);
+        const fetchedDicomBlob = await getDICOMImageByFileId(fileId);
+        setDicomBlob(fetchedDicomBlob);
       }
     };
     setup();
-  }, [elementRef, running]);
+  }, [fileId]);
 
   useEffect(() => {
     const display = async (dicomBlob: Blob | undefined) => {
@@ -68,7 +70,7 @@ export const DicomViewer = ({ fileId }: DicomViewerProps) => {
       stackViewportRef.current.render();
     };
     display(dicomBlob);
-  }, [dicomBlob, stackViewportRef]);
+  }, [dicomBlob]);
 
   useEffect(() => {
     if (error && elementRef.current) {
@@ -77,13 +79,25 @@ export const DicomViewer = ({ fileId }: DicomViewerProps) => {
   }, [error]);
 
   return (
-    <div
-      ref={elementRef}
-      style={{
-        width: '512px',
-        height: '512px',
-        backgroundColor: '#fff',
-      }}
-    ></div>
+    <div style={{ position: 'relative', width: '512px', height: '512px' }}>
+      {loading && (
+        <Skeleton
+          variant="rectangular"
+          width={512}
+          height={512}
+          sx={{ position: 'absolute', top: 0, left: 0, zIndex: 10 }}
+        />
+      )}
+      <div
+        ref={elementRef}
+        style={{
+          width: '512px',
+          height: '512px',
+          backgroundColor: '#fff',
+          opacity: loading ? 0 : 1, // Ensure Cornerstone gets the element but keep it hidden while loading
+          transition: 'opacity 0.3s ease-in-out',
+        }}
+      ></div>
+    </div>
   );
 };

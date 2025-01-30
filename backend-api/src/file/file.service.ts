@@ -8,8 +8,16 @@ import { ObjectStorageService } from '../object-storage/object-storage.interface
 import { OBJECT_STORAGE_SERVICE } from '../object-storage/object-storage.constants';
 import { File } from './file.model';
 import { ConfigService } from '@nestjs/config';
+import { PatientService } from '../patient/patient.service';
+import { SeriesService } from '../series/series.service';
+import { Series } from '../series/series.model';
+import { Patient } from '../patient/patient.model';
 
-interface A {}
+interface FileContent {
+  PatientName: string;
+  PatientBirthDate: string;
+  SeriesDescription: string;
+}
 
 @Injectable()
 export class FileService {
@@ -18,10 +26,12 @@ export class FileService {
     @Inject(OBJECT_STORAGE_SERVICE)
     private objectStorageService: ObjectStorageService,
     private configService: ConfigService,
+    private patientService: PatientService,
+    private seriesService: SeriesService,
   ) {}
 
-  async getAll(limit: number, offset: number): Promise<[File[], number]> {
-    return this.fileRepository.getAll(limit, offset);
+  async getAll(pageSize: number, page: number): Promise<[File[], number]> {
+    return await this.fileRepository.getAll(pageSize, page);
   }
 
   async get(id: string) {
@@ -40,16 +50,53 @@ export class FileService {
     let filePath: string | undefined;
     let fileModel: File | undefined;
 
+    let series: Series | undefined;
+    let patient: Patient | undefined;
+
     await dicomFileInput;
 
     try {
       filePath = await this.objectStorageService.create(dicomFileInput);
-      const fileContent = await this.processFile(filePath);
-      fileModel = await this.fileRepository.save(filePath);
+      const fileContent: FileContent = (await this.processFile(
+        filePath,
+      )) as unknown as FileContent;
+
+      // creation of entites should be done in one transaction but let look on that as improvement
+      // and talk during interview
+      let patient = await this.patientService.findOneByNameAndBirthDate(
+        fileContent.PatientName,
+        fileContent.PatientBirthDate,
+      );
+      if (!patient) {
+        patient = await this.patientService.create({
+          name: fileContent.PatientName,
+          birthDate: fileContent.PatientBirthDate,
+        });
+      }
+      series = await this.seriesService.findOneByDescription(
+        fileContent.SeriesDescription,
+      );
+      if (!series) {
+        series = await this.seriesService.create({
+          description: fileContent.SeriesDescription,
+        });
+      }
+
+      fileModel = await this.fileRepository.save({
+        filePath,
+        patientId: patient.id,
+        seriesId: series.id,
+      });
     } catch (e) {
-      console.error(e)
+      console.error(e);
       if (filePath) {
         await this.objectStorageService.delete(filePath);
+      }
+      if (series?.id) {
+        await this.seriesService.delete(series.id);
+      }
+      if (patient?.id) {
+        await this.patientService.delete(patient.id);
       }
       fileModel = undefined;
     } finally {

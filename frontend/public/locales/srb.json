@@ -7,14 +7,18 @@
   },
 
   "appBar": {
-    "title": "Aplikaciona traka"
+    "title": "Navigaciona traka",
+    "toolbar": {
+      "fileList": "Lista fajlova",
+      "fileUpload": "DICOM otpremanje"
+    }
   },
 
   "fileUploadPage": {
     "title": "Stranica za otpremanje fajlova",
     "browseFiles": "Pregledaj fajlove",
     "ddTOnlyActiveText": "Prevucite DICOM fajlove ovde...",
-    "ddPlusClickText": "Prevucite i ispustite DICOM fajlove ovde ili kliknite za izbor",
+    "ddPlusClickText": "Prevucite & ispustite DICOM fajlove ovde ili kliknite da ih izaberete",
     "allowedFormats": "Dozvoljeni format:",
     "maxSize": "Maksimalna veličina:",
     "errorTooLarge": "Veličina fajla prelazi 5MB.",
@@ -26,7 +30,17 @@
     "uploadFailed": "Otpremanje fajla nije uspelo!"
   },
 
-  "listingPage": {},
+  "fileListingPage": {
+    "title": "Stranica liste fajlova",
+    "listingTable": {
+      "patientNameColumn": "Ime pacijenta",
+      "patientBirthDateColumn": "Datum rođenja pacijenta",
+      "seriesDescriptionColumn": "Opis serije",
+      "downloadColumn": "Preuzmi",
+      "previewColumn": "Pregled",
+      "fetchError": "Greška pri učitavanju liste fajlova"
+    }
+  },
 
   "filePreviewPage": {
     "title": "DICOM Preglednik",
