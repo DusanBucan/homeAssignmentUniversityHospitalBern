@@ -72,6 +72,7 @@ The following assumptions were made:
 ## Individual Apps Setup Steps
 
 - Backend:
+  - Start the database `docker-compose -f docker-compose-local-dev.yaml up`
   - Go to the root folder of the repo.
   - Run `virtualenv dicom-parser-venv`
   - Run `source ./dicom-parser-venv/bin/activate`
@@ -80,7 +81,8 @@ The following assumptions were made:
   - Run `poetry install`
   - Run `cd ../`
   - Run `npm ci`
-  - Configure `.env` if needed (turn `on/off database init flag`)
+  - Create `.env` file based on `.env.example`
+  - Configure `.env` if needed (turn `on/off DB_INIT flag`)
   - Start the database if needed.
   - Run `npm run start:dev`
 

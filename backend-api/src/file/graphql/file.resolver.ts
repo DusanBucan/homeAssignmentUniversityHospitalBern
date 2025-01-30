@@ -11,8 +11,9 @@ export class FileResolver {
 
   @Query(() => FileList)
   async getAll(
-    @Args('page', { nullable: true, type: () => Int }) page: number = 10,
-    @Args('pageSize', { nullable: true, type: () => Int }) pageSize: number = 0,
+    @Args('page', { nullable: true, type: () => Int }) page: number = 0,
+    @Args('pageSize', { nullable: true, type: () => Int })
+    pageSize: number = 10,
   ) {
     const [files, count] = await this.fileService.getAll(pageSize, page);
     return {

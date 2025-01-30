@@ -1,4 +1,4 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import * as path from 'path';
 import { FILE_REPOSITORY } from './file.constants';
 import { FileRepository } from './file.repository.interface';
@@ -21,6 +21,8 @@ interface FileContent {
 
 @Injectable()
 export class FileService {
+  private readonly logger = new Logger(FileService.name);
+
   constructor(
     @Inject(FILE_REPOSITORY) private fileRepository: FileRepository,
     @Inject(OBJECT_STORAGE_SERVICE)
@@ -87,8 +89,9 @@ export class FileService {
         patientId: patient.id,
         seriesId: series.id,
       });
+      this.logger.log(`Successfully saved file at path: ${filePath}`);
     } catch (e) {
-      console.error(e);
+      this.logger.error(`Error while saving file: ${e.message}`, e);
       if (filePath) {
         await this.objectStorageService.delete(filePath);
       }
@@ -147,7 +150,7 @@ export class FileService {
           const retVal = JSON.parse(output);
           resolve(retVal);
         } else {
-          console.error(
+          this.logger.error(
             errorOutput || `Python script failed with code ${code}`,
           );
           reject(

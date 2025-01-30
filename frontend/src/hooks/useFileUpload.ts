@@ -19,16 +19,11 @@ export const useFileUpload = () => {
       formData.append('0', file);
       setLoading(true);
 
-      const uploadedFileResponse = await backendApiInstanceGQL.postForm(
-        '',
-        formData,
-        {
-          headers: {
-            'apollo-require-preflight': 'false',
-          },
-        }
-      );
-      console.log(uploadedFileResponse);
+      await backendApiInstanceGQL.postForm('', formData, {
+        headers: {
+          'apollo-require-preflight': 'false',
+        },
+      });
       setLoading(false);
       enqueueSnackbar(t('fileUploadPage.uploadSuccess'), {
         variant: 'success',

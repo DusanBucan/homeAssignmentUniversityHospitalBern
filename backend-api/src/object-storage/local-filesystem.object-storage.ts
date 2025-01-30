@@ -1,12 +1,12 @@
 import * as path from 'path';
-import { NotFoundException } from '@nestjs/common';
+import { Logger, NotFoundException } from '@nestjs/common';
 import { createReadStream, createWriteStream, mkdirSync } from 'fs';
 import { finished } from 'stream/promises';
 import { Injectable } from '@nestjs/common';
 import { ObjectStorageService } from './object-storage.interface';
 import { LOCAL_FILESYSTEM_OBJECT_STORAGE_FOLDER } from './object-storage.constants';
 import * as Upload from 'graphql-upload/Upload.js';
-import { readFile, unlink, access, constants } from 'fs/promises';
+import { unlink, access, constants } from 'fs/promises';
 import { Readable } from 'stream';
 
 @Injectable()
@@ -20,6 +20,10 @@ export class LocalFilesystemObjectStorageService
     `dicom_images`,
   );
 
+  private readonly logger = new Logger(
+    LocalFilesystemObjectStorageService.name,
+  );
+
   constructor() {
     mkdirSync(this.UPLOAD_DIR, { recursive: true });
   }
@@ -28,7 +32,7 @@ export class LocalFilesystemObjectStorageService
     const fileName = `${Date.now()}_${object.filename}`;
     const filePath = path.join(this.UPLOAD_DIR, fileName);
 
-    console.log(`file path: ${filePath}`); //TODO: replace with logger
+    this.logger.log(`file path: ${filePath}`);
 
     const inStream = object.createReadStream();
     const outStream = createWriteStream(filePath);
@@ -36,10 +40,10 @@ export class LocalFilesystemObjectStorageService
 
     await finished(outStream)
       .then(() => {
-        console.log('file uploaded');
+        this.logger.log('file uploaded');
       })
       .catch((err) => {
-        console.log(err.message);
+        this.logger.error(err.message);
         throw new NotFoundException(err.message);
       });
 
@@ -52,7 +56,7 @@ export class LocalFilesystemObjectStorageService
       await access(key, constants.F_OK);
       retVal = createReadStream(key);
     } catch (err) {
-      console.error('Error reading file:', err);
+      this.logger.error(`Error reading file: ${err.message}`, err);
     } finally {
       return retVal;
     }
@@ -63,7 +67,7 @@ export class LocalFilesystemObjectStorageService
       await access(key, constants.F_OK); // constants.F_OK checks for file existence
       await unlink(key);
     } catch (err) {
-      console.log('File does not exist');
+      this.logger.error(`File delition failed: ${err.message}`, err);
     }
   }
 }
